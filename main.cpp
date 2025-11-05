@@ -35,9 +35,16 @@
 #include <iostream>
 #include <iomanip>
 #include <cstring>
+#include <fstream>
+#include <limits>
+#include <sstream>
 
 using namespace std;
 
+
+
+const int MAX_SONGS = 500;
+const char DATAFILE[] = "songs.csv"; 
 
 struct Song {
   static const int MAX_CHARACTERS = 255;
@@ -52,18 +59,43 @@ void loadSongData(Song &song);
 // Pass the variable by constant reference to a function to print the members of the struct variable.
 void print(const Song &song);
 
+void print(const Song song[], int count);
+
+void loadDataFile(Song songs[], int &count);
+
 // Main function
 // https://en.cppreference.com/w/cpp/language/main_function.html
 int main() {
-  Song song;
-  loadSongData(song);
+  Song songs[MAX_SONGS];
+  int count = 0;
+  //loadSongData(song);
+
+  loadDataFile(songs, count);
+
   cout << endl;
   cout << endl;
-  print(song);
+  //print(song);
+  print(songs, count);
   return 0;
 }
 
 // Function implementations (if any)
+
+void printHeading(int col_width_title, int col_width_artist, int col_width_collection) {
+  cout << left;
+  cout << setw(col_width_title) << "TITLE";
+  cout << setw(col_width_artist) << "ARTIST";
+  cout << setw(col_width_collection) << "COLLECTION";
+  cout << endl;
+}
+
+void printSong(int col_width_title, int col_width_artist, int col_width_collection, Song song) {
+  cout << left;
+  cout << setw(col_width_title) << song.title;
+  cout << setw(col_width_artist) << song.artist;
+  cout << setw(col_width_collection) << song.collection;
+  cout << endl;
+}
 
 void print(const Song &song) {
   const int tab_size = 4;
@@ -71,16 +103,39 @@ void print(const Song &song) {
   int col_width_artist = strlen(song.artist) + tab_size;
   int col_width_collection = strlen(song.collection) + tab_size;
 
-  cout << left;
-  cout << setw(col_width_title) << "TITLE";
-  cout << setw(col_width_artist) << "ARTIST";
-  cout << setw(col_width_collection) << "COLLECTION";
+  printHeading(col_width_title, col_width_artist, col_width_collection);
+  printSong(col_width_title, col_width_artist, col_width_collection, song);
   cout << endl;
+}
 
-  cout << setw(col_width_title) << song.title;
-  cout << setw(col_width_artist) << song.artist;
-  cout << setw(col_width_collection) << song.collection;
-  cout << endl;
+void print(const Song songs[], int count) {
+  const int tab_size = 4;
+  int col_width_title = 0;
+  int col_width_artist = 0;
+  int col_width_collection = 0;
+  for(int i = 0; i < count; i++) {
+    int n = strlen(songs[i].title);
+    if(n > col_width_title) {
+      col_width_title = n;
+    }
+
+    n = strlen(songs[i].artist);
+    if(n > col_width_artist) {
+      col_width_artist = n;
+    }
+
+    n = strlen(songs[i].collection);
+    if(n > col_width_title) {
+      col_width_collection = n;
+    }
+  }
+  col_width_title += tab_size;  
+  col_width_artist += tab_size;
+  col_width_collection += tab_size;
+
+  for(int i = 0; i < count; i++) {
+    printSong(col_width_title, col_width_artist, col_width_collection, songs[i]);
+  }
 }
 
 void loadSongData(Song &song) {
@@ -92,6 +147,23 @@ void loadSongData(Song &song) {
 
   cout << "COLLECTION: ";
   cin.getline(song.collection, Song::MAX_CHARACTERS, '\n');
+}
+
+
+void loadDataFile(Song songs[], int &count) {
+  ifstream fin(DATAFILE);
+
+  fin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+  char buffer[Song::MAX_CHARACTERS * 3 + 1] = {0};
+  while(fin.getline(buffer, Song::MAX_CHARACTERS * 3)) {
+    stringstream sin(buffer);
+    sin.getline(songs[count].title, Song::MAX_CHARACTERS, ',');
+    sin.getline(songs[count].artist, Song::MAX_CHARACTERS, ',');
+    sin.getline(songs[count].collection, Song::MAX_CHARACTERS, '\n');
+    count++;
+  }
+
 }
 
 
