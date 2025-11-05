@@ -1,0 +1,12 @@
+{
+  "editor.stickyScroll.enabled": false,
+  "git.postCommitCommand": "sync",
+  "git.autorefresh": true,
+  "git.autofetch": true,
+  "git.confirmSync": false,
+  "files.associations": {
+    "iostream": "cpp",
+    "iomanip": "cpp",
+    "ostream": "cpp"
+  }
+}
